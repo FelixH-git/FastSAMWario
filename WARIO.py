@@ -158,7 +158,7 @@ class AIApplication:
 
             img = prompt_process.plot_to_result(annotations=ann)
 
-            # FPS Calculation
+            # FPS Calculations
             end = time.perf_counter()
             total_time = end - start
             fps = 1 / total_time
@@ -169,15 +169,21 @@ class AIApplication:
             # Display FPS on frame
             cv2.putText(img_resized, f'FPS {int(fps)}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
-            # Convert frame for Tkinter display
-            img_rgb = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
-            img_pil = Image.fromarray(img_rgb)
-            img_tk = ImageTk.PhotoImage(img_pil)
+            # # Convert frame for Tkinter display
+            # img_rgb = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
+            # img_pil = Image.fromarray(img_rgb)
+            # img_tk = ImageTk.PhotoImage(img_pil)
 
-            self.update_canvas(img_tk)
+            # self.update_canvas(img_tk)
 
             # Send data to the server
-            data_string = str([xy.astype(int).tolist() for xy in masks_xy]).replace(" ", "").replace("]],[[", "]->[")[2:-2].replace("[", "").replace("]", "")
+            data_list = []
+            for segmentation in masks_xy:
+                seg = segmentation.astype(int).tolist()
+                data_list.append(seg)
+            
+            data_string = str(data_list).replace(" ", "").replace("]],[[", "]->[")[2:-2].replace("[", "").replace("]", "")
+            # print(data_string)
             s.send(data_string.encode("cp1252"))
 
             if cv2.waitKey(20) == ord("q"):
